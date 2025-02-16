@@ -22,7 +22,7 @@ router.get("/script.js", (req, res) => {
   const gad = urlParams.get("gad_source");
 
   // Automatically send data to the server using a GET request
-  const trackingUrl = new URL("https://webclicksees.onrender.com/api/track");
+  const trackingUrl = new URL("https://web-tracking.onrender.com/api/track");
   trackingUrl.searchParams.append("domain", domain);
   if (gclid) trackingUrl.searchParams.append("gclid", gclid);
   if (kw) trackingUrl.searchParams.append("kw", kw);
