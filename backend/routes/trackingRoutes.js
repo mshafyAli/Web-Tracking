@@ -81,7 +81,7 @@ router.get("/api/track", async (req, res) => {
     if (isVpn) {
       const mailOptions = {
         from: "shafyhussain909@gmail.com", // Sender address
-        to: "shafyali433@gmail.com", // Receiver address
+        to: "shafyhussain909@gmail.com", // Receiver address
         subject: "VPN User Detected", // Email subject
         text: `A user from IP: ${ip} is accessing the site using a VPN.\n\nGeolocation: ${geoData.city}, ${geoData.country}\n\nTracking Data:\n${JSON.stringify(trackingData)}`,
       };
