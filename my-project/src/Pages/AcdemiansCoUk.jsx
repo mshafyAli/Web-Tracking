@@ -24,13 +24,13 @@ const APW = () => {
     const fetchTrackingData = async () => {
       try {
         const response = await fetch(
-          "https://webclicksees.onrender.com/api/tracking-records"
+          "https://web-tracking.onrender.com/api/tracking-records"
         );
         const data = await response.json();
         const domainRecords = data.filter(
           (record) =>
-            record.domain === "academians.co.uk" ||
-            record.domain === "www.academians.co.uk"
+            record.domain === "port-folio-website-two.vercel.app" ||
+            record.domain === "www.port-folio-website-two.vercel.app"
         );
         setRecords(domainRecords);
         setFilteredRecords(domainRecords);
@@ -83,7 +83,7 @@ const APW = () => {
     try {
       if (confirmDelete) {
         const response = await fetch(
-          `https://webclicksees.onrender.com/api/tracking-records/${id}`,
+          `https://web-tracking.onrender.com/api/tracking-records/${id}`,
           {
             method: "DELETE",
           }
