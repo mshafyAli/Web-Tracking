@@ -10,6 +10,8 @@ const VPN_API_KEY = "5648s6-c8489j-4s6hge-o40023"; // Change this to your chosen
 const VPN_CHECK_URL = "https://proxycheck.io/v2"; // Example VPN check API URL
 
 
+let vpnIpsQueue = []; // Array to store VPN detected IPs with timestamp
+
 // Helper function to check if the IP is a VPN
 async function checkVpn(ip) {
     try {
@@ -40,13 +42,56 @@ router.get("/api/check-vpn", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Email transporter configuration
 const transporter = nodemailer.createTransport({
-  service: "gmail", // You can use other email services too
+  service: "gmail",
   auth: {
     user: "shafyhussain909@gmail.com", // Your email address
-    pass: "yzhv jfqm aqwi pyot", // Your email password or app-specific password
+    pass: "yzhv jfqm aqwi pyot", // Use an app-specific password
   },
 });
+
+// Function to send email with detected VPN IPs
+const sendVpnEmail = (vpnIps) => {
+  const mailOptions = {
+    from: "shafyhussain909@gmail.com",
+    to: "shafyhussain909@gmail.com",
+    subject: "VPN Users Detected in the Last Hour",
+    text: `The following users accessed the site using a VPN:\n\n${vpnIps
+      .map((ipData) => `IP: ${ipData.ip}, Geolocation: ${ipData.geoData.country}`)
+      .join("\n")}`,
+  };
+
+  // Send email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Error sending email:", error);
+    } else {
+      console.log("Email sent successfully:", info.response);
+    }
+  });
+};
+
+// Function to process and send email after 1 hour
+const processVpnQueue = () => {
+  const currentTime = Date.now();
+  const oneHourAgo = currentTime - 60 * 60 * 1000; // 1 hour ago in milliseconds
+
+  // Filter out VPN IPs older than 1 hour
+  const vpnIpsToSend = vpnIpsQueue.filter((ipData) => ipData.timestamp <= oneHourAgo);
+
+  if (vpnIpsToSend.length > 0) {
+    sendVpnEmail(vpnIpsToSend);
+  }
+
+  // Clear the queue after processing
+  vpnIpsQueue = vpnIpsQueue.filter((ipData) => ipData.timestamp > oneHourAgo);
+};
+
+// Set an interval to process the queue every minute
+setInterval(processVpnQueue, 60 * 1000); // Every minute
+
 
 router.get("/api/track", async (req, res) => {
   try {
@@ -55,21 +100,21 @@ router.get("/api/track", async (req, res) => {
 
     const domain = req.query.domain || req.hostname;
     const gclid = req.query.gclid || null;
-    const gad = req.query.gad || null; 
-    const kw = req.query.kw || null;  
+    const gad = req.query.gad || null;
+    const kw = req.query.kw || null;
 
     // Geolocation request using ip-api
     const geoResponse = await axios.get(`${GEOLOCATION_URL}/${ip}`);
     const geoData = geoResponse.data;
     console.log("Geolocation Data:", geoData);
 
-    const isVpn = await checkVpn(ip); // Use the new VPN check function
+    const isVpn = await checkVpn(ip); // Use the VPN check function
 
     const trackingData = new Tracking({
       domain,
       gclid,
-      gad,      
-      kw,  
+      gad,
+      kw,
       ip,
       country: geoData.country || "Unknown", // Using ip-api response country
       isVpn,
@@ -77,22 +122,12 @@ router.get("/api/track", async (req, res) => {
 
     await trackingData.save();
 
-    // If the user is coming from a VPN, send an email notification
+    // If the user is coming from a VPN, store the data temporarily
     if (isVpn) {
-      const mailOptions = {
-        from: "shafyhussain909@gmail.com", // Sender address
-        to: "shafyhussain909@gmail.com", // Receiver address
-        subject: "VPN User Detected", // Email subject
-        text: `A user from IP: ${ip} is accessing the site using a VPN.\n\nGeolocation: ${geoData.city}, ${geoData.country}\n\nTracking Data:\n${JSON.stringify(trackingData)}`,
-      };
-
-      // Send email notification
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log("Error sending email:", error);
-        } else {
-          console.log("Email sent successfully:", info.response);
-        }
+      vpnIpsQueue.push({
+        ip,
+        timestamp: Date.now(), // Capture the time when VPN was detected
+        geoData,
       });
     }
 
