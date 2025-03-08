@@ -1,41 +1,104 @@
-import { Routes, Route } from "react-router-dom";
-import Home from "./Pages/Home";
-import AcdemiansComUk from "./Pages/AcdemiansCoUk";
-import TheAcdemiansCoUk from "./Pages/TheAcdemiansCoUk";
-import APW from "./Pages/APW";
-import BPW from "./Pages/BPW";
-import THA from "./Pages/THA";
-import TA from "./Pages/TA";
-import { ToastContainer } from "react-toastify";
-import Login from "./Components/Login";
-function App() {
-  return (
-    <>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/academians.co.uk" element={<AcdemiansComUk />} />
-        <Route path="/the-academians.co.uk" element={<TheAcdemiansCoUk />} />
-        <Route path="/aussiephdwriter.com.au" element={<APW />} />
-        <Route path="/britishphdwriters.co.uk" element={<BPW />} />
-        <Route path="/the-academians.au" element={<THA />} />
-        <Route path="/the-academians.uk" element={<TA />} />
-      <Route path="/login" element={<Login />} />
+// import { Routes, Route } from "react-router-dom";
+// import Home from "./Pages/Home";
+// import AcdemiansComUk from "./Pages/AcdemiansCoUk";
+// import TA from "./Pages/TA";
+// import { ToastContainer } from "react-toastify";
+// import Login from "./Components/Login";
+// import { useDispatch, useSelector } from "react-redux";
+// import CheckAuth from "./Components/common/check-auth";
+// function App() {
+//   const {user,isAuthenticated,isLoading} = useSelector((state)=>state.auth)
+//   const dispatch = useDispatch();
+
+//   return (
+//     <>
+//       <Routes>
+        
+//         <Route
+//           path="/"
+//           element={
+//             <CheckAuth
+//               isAuthenticated={isAuthenticated}
+//               user={user}
+//             ></CheckAuth>
+//           }
+//         />
+//         <Route path="/home" element={<Home />} />
+//         <Route path="/academians.co.uk" element={<AcdemiansComUk />} />
+//         <Route path="/the-academians.uk" element={<TA />} />
+//       <Route path="/login" element={<Login />} />
 
        
-      </Routes>
+//       </Routes>
+//       <ToastContainer
+//           position="bottom-center"
+//           autoClose={5000}
+//           hideProgressBar={false}
+//           newestOnTop={false}
+//           closeOnClick
+//           rtl={false}
+//           pauseOnFocusLoss
+//           draggable
+//           pauseOnHover
+//           theme="light"
+//         />
+//     </>
+//   );
+// }
+
+// export default App;
+
+
+import { Routes, Route } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import CheckAuth from "./Components/common/check-auth";
+import Home from "./Pages/Home";
+import AcdemiansComUk from "./Pages/AcdemiansCoUk";
+import TA from "./Pages/TA";
+import { checkAuth } from "./store/authSlice/index.js"
+import Login from "./Components/Login";
+import { ToastContainer } from "react-toastify";
+import { useEffect } from "react";
+import SignUp from "./Components/SignUp";
+
+function App() {
+  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  return (
+    <>
+      {/* Wrap all routes inside CheckAuth for protection */}
+      <CheckAuth isAuthenticated={isAuthenticated}>
+        <Routes>
+          <Route path="/home" element={<Home />} />
+          <Route path="/academians.co.uk" element={<AcdemiansComUk />} />
+          <Route path="/the-academians.uk" element={<TA />} />
+          
+          {/* If user is authenticated, redirect login to home */}
+          <Route path="/login" element={!isAuthenticated ? <Login /> : <Home />} />
+          <Route path="/register" element={!isAuthenticated ? <SignUp /> : <Home />} />
+          {/* Redirect "/" to "/home" if authenticated */}
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </CheckAuth>
+
+      {/* Toast Notifications */}
       <ToastContainer
-          position="bottom-center"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+        position="bottom-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }
