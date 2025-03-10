@@ -29,6 +29,17 @@ app.use("/api/auth", authRouter);
 app.use(trackingRoutes);
 app.use(scriptRoute);
 
+
+
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Server is running and this is the root test response!" });
+  })
+
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
 // const createDefaultUser = async () =>{
 //   const defaultUsername = "admin";
 //   const defaultPassword = "admin123";
@@ -78,11 +89,3 @@ app.use(scriptRoute);
 //   }
 
 // })
-
-app.get("/", (req, res) => {
-    res.status(200).json({ message: "Server is running and this is the root test response!" });
-  })
-
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

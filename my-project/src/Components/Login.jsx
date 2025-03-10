@@ -120,30 +120,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // try {
-    //   await axios
-    //     .post(
-    //       `https://webclicksees.onrender.com/api/login`,
-    //       {
-    //         username,
-    //         password,
-    //       },
-    //       { withCredentials: true }
-    //     )
-    //     .then((res) => {
-    //       toast.success("Login Successfully");
-    //       navigate("/home");
-    //       window.location.reload(true);
-    //       console.log(res);
-    //     });
-    // } catch (error) {
-    //   if (error.response.status === 400) {
-    //     toast.error("Invalid email or password");
-    //   } else {
-    //     toast.error("Login Failed");
-    //   }
-    //   console.log(error);
-    // }
+   
 
     dispatch(loginUser(formData)).then((data)=>{
       if(data?.payload?.success){

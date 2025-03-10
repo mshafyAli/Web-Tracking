@@ -63,6 +63,7 @@ import SignUp from "./Components/SignUp";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
+  console.log("User",user,"Authentication",isAuthenticated,"isLoading",isLoading)
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -72,19 +73,28 @@ function App() {
   return (
     <>
       {/* Wrap all routes inside CheckAuth for protection */}
-      <CheckAuth isAuthenticated={isAuthenticated}>
+      <CheckAuth isAuthenticated={isAuthenticated} user={user}>
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/academians.co.uk" element={<AcdemiansComUk />} />
           <Route path="/the-academians.uk" element={<TA />} />
           
-          {/* If user is authenticated, redirect login to home */}
+         
           <Route path="/login" element={!isAuthenticated ? <Login /> : <Home />} />
           <Route path="/register" element={!isAuthenticated ? <SignUp /> : <Home />} />
-          {/* Redirect "/" to "/home" if authenticated */}
+          
           <Route path="/" element={<Home />} />
         </Routes>
       </CheckAuth>
+
+{/* <Routes>
+  <Route path="/home" element={isAuthenticated ? <Home /> : <Login />} />
+  <Route path="/academians.co.uk" element={isAuthenticated ? <AcdemiansComUk /> : <Login />} />
+  <Route path="/the-academians.uk" element={isAuthenticated ? <TA /> : <Login />} />
+  <Route path="/login" element={!isAuthenticated ? <Login /> : <Home />} />
+  <Route path="/register" element={!isAuthenticated ? <SignUp /> : <Home />} />
+  <Route path="/" element={<Home />} />
+</Routes> */}
 
       {/* Toast Notifications */}
       <ToastContainer

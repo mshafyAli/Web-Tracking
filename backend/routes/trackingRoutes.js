@@ -4,6 +4,7 @@ const requestIp = require("request-ip");
 const Tracking = require("../models/Tracking");
 const router = express.Router();
 const nodemailer = require("nodemailer");
+const {authMiddleware} = require("../controllers/auth/auth-controller")
 
 const GEOLOCATION_URL = "http://ip-api.com/json"; 
 const VPN_API_KEY = "5648s6-c8489j-4s6hge-o40023"; // Change this to your chosen VPN checking API key
@@ -191,7 +192,16 @@ router.get("/api/tracking-records", async (req, res) => {
 });
 
 // Delete a specific tracking record
-router.delete("/api/tracking-records/:id", async (req, res) => {
+
+router.delete("/api/tracking-records/:id", authMiddleware, async (req, res) => {
+  // Check if the user is an admin
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ 
+      success: false, 
+      message: "Access denied! Only admins can delete records." 
+    });
+  }
+
   const { id } = req.params;
   try {
     const deletedRecord = await Tracking.findByIdAndDelete(id);
@@ -204,5 +214,19 @@ router.delete("/api/tracking-records/:id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// router.delete("/api/tracking-records/:id", async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const deletedRecord = await Tracking.findByIdAndDelete(id);
+//     if (!deletedRecord) {
+//       return res.status(404).json({ error: "Record not found" });
+//     }
+//     res.status(200).json({ message: "Record deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting record:", error.message);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 module.exports = router;
